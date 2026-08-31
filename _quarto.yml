@@ -1,0 +1,10 @@
+project:
+  type: default
+  execute-dir: project
+
+format:
+  html:
+    embed-resources: true
+
+execute:
+  freeze: false

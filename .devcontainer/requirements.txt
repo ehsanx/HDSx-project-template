@@ -1,0 +1,3 @@
+# Course Python baseline. Add one package per line only when course work needs it.
+pandas
+jupyter

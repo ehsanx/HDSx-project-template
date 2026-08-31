@@ -1,0 +1,58 @@
+{
+  // ---------------------------------------------------------------------------
+  // SPPH 381H GROUP PROJECT Codespace: R + Quarto + Python, beginner-ready.
+  //
+  // This is the group project template teams create from in Week 4 (M0).
+  // Creating from it and opening a Codespace gives every student R, Quarto, Python, and the right
+  // VS Code extensions automatically -- nothing to install by hand. It mirrors
+  // the environment used by the HDSx course book so renders behave the same way.
+  // (The HDSx book is a separate, read-only repository; students work HERE.)
+  // ---------------------------------------------------------------------------
+  "name": "SPPH 381H group project (R + Quarto + Python)",
+
+  // rocker "tidyverse" ships R + the whole tidyverse + the system libraries
+  // students need, so renders work out of the box. Pin the major version.
+  "image": "ghcr.io/rocker-org/devcontainer/tidyverse:4",
+
+  "features": {
+    // Quarto CLI (bundles its own pandoc). HTML rendering works immediately.
+    // TinyTeX off on purpose: students render HTML, not PDF.
+    "ghcr.io/rocker-org/devcontainer-features/quarto-cli:1": {
+      "version": "release",
+      "installTinyTeX": "false"
+    },
+    // Python 3.11 for the Week 5 polyglot demo.
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.11"
+    }
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "quarto.quarto",
+        "REditorSupport.r",
+        "ms-python.python",
+        "ms-toolsai.jupyter",
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "mechatroner.rainbow-csv"
+      ],
+      "settings": {
+        "r.rterm.linux": "/usr/local/bin/R",
+        "r.bracketedPaste": true,
+        "editor.formatOnSave": false
+      }
+    }
+  },
+
+  // Runs once after the container is built. Installs the few extra packages and
+  // self-tests the toolchain. The leading sed strips stray carriage returns so
+  // the script runs even if the file was copied without git's eol=lf handling.
+  "postCreateCommand": "sed -i 's/\\r$//' .devcontainer/setup.sh && bash .devcontainer/setup.sh",
+
+  "hostRequirements": {
+    "cpus": 2,
+    "memory": "8gb"
+  }
+}
