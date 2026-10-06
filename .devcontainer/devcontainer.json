@@ -41,6 +41,16 @@
       "settings": {
         "r.rterm.linux": "/usr/local/bin/R",
         "r.bracketedPaste": true,
+        // 🤖 AI edit (Claude), 2026-10-06: the two settings below, ported from
+        // the HDSx-workspace fix of 2026-09-29.
+        // Plots from Run Cell appear as images in a VS Code tab. The image's
+        // default (httpgd) embeds a forwarded port, which the Codespaces
+        // browser client shows as a blank pane.
+        "r.plot.backend": "standard",
+        // Preview still renders on save but opens nothing: its side pane comes
+        // up blank for the same reason, and its browser tab lands on "Not
+        // Found". Rendered files are viewed through port 8000 instead (below).
+        "quarto.render.previewType": "none",
         "editor.formatOnSave": false
       }
     }
@@ -50,6 +60,23 @@
   // self-tests the toolchain. The leading sed strips stray carriage returns so
   // the script runs even if the file was copied without git's eol=lf handling.
   "postCreateCommand": "sed -i 's/\\r$//' .devcontainer/setup.sh && bash .devcontainer/setup.sh",
+
+  // 🤖 AI edit (Claude), 2026-10-06: this block, ported from the HDSx-workspace
+  // fix of 2026-09-29.
+  // Serves the repository so rendered HTML (and PDF) opens in a browser tab:
+  // Ports tab -> "Rendered reports" -> globe icon -> click the file. The front
+  // page is a file list, because Codespaces always opens a port's front page.
+  // Runs each time VS Code connects, as a foreground server like typing it in a
+  // terminal. (A detached postStartCommand server did not survive startup.)
+  // Bound to 127.0.0.1 so only Codespaces' own forwarding can reach it. It
+  // serves the whole repository, .git included, so keep the port private.
+  "forwardPorts": [8000],
+  "portsAttributes": {
+    "8000": { "label": "Rendered reports", "onAutoForward": "silent" }
+  },
+  "postAttachCommand": {
+    "reports": "python3 -m http.server 8000 --bind 127.0.0.1"
+  },
 
   "hostRequirements": {
     "cpus": 2,

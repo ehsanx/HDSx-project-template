@@ -19,6 +19,17 @@ Rscript -e '
   cat("R extras present:", paste(have, collapse = ", "), "\n")
 '
 
+# 🤖 AI edit (Claude), 2026-10-06: this block and the sess self-test line, ported
+# from the HDSx-workspace fix of 2026-09-29.
+# sess connects R terminals to the VS Code R extension (v3+), which is how plots
+# and View() reach the editor. Without it, plots silently go to Rplots.pdf. It is
+# not on CRAN yet, and pre-installing it saves students an install prompt.
+echo "==> Installing sess (sends plots from R to VS Code)..."
+Rscript -e '
+  if (!requireNamespace("sess", quietly = TRUE))
+    install.packages("sess", repos = c("https://reditorsupport.r-universe.dev", "https://cloud.r-project.org"))
+'
+
 echo "==> Installing Python packages (Week 5 polyglot / reticulate demo)..."
 python3 -m pip install --upgrade pip >/dev/null
 python3 -m pip install -r .devcontainer/requirements.txt
@@ -29,6 +40,7 @@ echo "-- R --";       R --version | head -n 1
 echo "-- Quarto --";  quarto --version
 echo "-- Python --";  python3 --version
 echo "-- pandas --";  python3 -c "import pandas as pd; print('pandas', pd.__version__)" || echo "pandas NOT available"
+echo "-- sess --";    Rscript -e 'cat("sess", format(packageVersion("sess")), "\n")' 2>/dev/null || echo "sess NOT available (plots will not show in VS Code)"
 echo ""
 echo "-- quarto check (verifies R + Python + Jupyter integration) --"
 quarto check || true

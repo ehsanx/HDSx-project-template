@@ -24,6 +24,19 @@ group's project.
 > repository. Using the template gives you the milestone structure, the
 > devcontainer, and the project configuration already in place.
 
+## Viewing rendered output
+
+<!-- 🤖 AI edit (Claude), 2026-10-06: this section, ported from the HDSx-workspace README. -->
+After you render a document (**View → Command Palette → Quarto: Render
+Document**), open the **Ports** tab (next to **Terminal**), click the globe icon
+on the **Rendered reports** row, and click the `.html` file in the list that
+opens. Keep that browser tab open and reload it after each render. Plots from
+**Run Cell** appear in a plot tab inside VS Code. If the browser tab is empty or
+shows an error, run `pkill -f http.server; python3 -m http.server 8000 --bind 127.0.0.1`
+in the terminal, leave it running, and reload the tab. Never click **Make
+Public** on this port: anyone with the link could then browse your whole
+repository.
+
 ## Project map
 
 ```text
