@@ -1,3 +1,6 @@
 # Course Python baseline. Add one package per line only when course work needs it.
+# 🤖 AI edit (Claude), 2026-10-20: the two lines below.
+# Exact versions of these and everything they pull in live in constraints.txt.
+# After editing this list, regenerate it with the command at its top.
 pandas
 jupyter
