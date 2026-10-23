@@ -15,7 +15,9 @@ group's project.
 2. **Add your teammates** as collaborators (Settings → Collaborators) and add
    the teaching team as instructed on Canvas.
 3. **Everyone:** open the new repository in a **Codespace** (Code → Codespaces →
-   Create). The environment (R, Quarto, Python) sets up automatically.
+   Create). R, Quarto, and Python come preinstalled, and it's ready in about 5
+   minutes ([how to tell it's ready](https://ehsanx.github.io/HDSx/weeks/week02-modern-workflows/workflows03-open-codespace.html#is-it-ready)).
+   <!-- 🤖 AI edit (Claude), 2026-10-22: wait time and ready check, as in the HDSx-workspace README. -->
 4. Complete the **M0: Group Formation** deliverables in
    `milestones/m0-group-formation/submission/` and submit your repository link
    on Canvas.
@@ -26,16 +28,15 @@ group's project.
 
 ## Viewing rendered output
 
-<!-- 🤖 AI edit (Claude), 2026-10-06: this section, ported from the HDSx-workspace README. -->
+<!-- 🤖 AI edit (Claude), 2026-10-06, revised 2026-10-22: this section, ported from the HDSx-workspace README (the port-8000 server is gone). -->
 After you render a document (**View → Command Palette → Quarto: Render
-Document**), open the **Ports** tab (next to **Terminal**), click the globe icon
-on the **Rendered reports** row, and click the `.html` file in the list that
-opens. Keep that browser tab open and reload it after each render. Plots from
-**Run Cell** appear in a plot tab inside VS Code. If the browser tab is empty or
-shows an error, run `pkill -f http.server; python3 -m http.server 8000 --bind 127.0.0.1`
-in the terminal, leave it running, and reload the tab. Never click **Make
-Public** on this port: anyone with the link could then browse your whole
-repository.
+Document**, then **Render HTML**), click the `.html` file in the file list on the
+left: it opens in a tab inside VS Code. After each render, close that tab and
+click the file again. Plots from **Run Cell** appear in a plot tab inside VS
+Code. For a PDF, choose **Render PDF (Typst)** and click the PDF the same way.
+To open a file in your own browser instead, right-click it in the file list and
+choose **Download**. Step by step, with screenshots:
+[Render with Quarto](https://ehsanx.github.io/HDSx/weeks/week02-modern-workflows/workflows07-render-quarto.html).
 
 ## Project map
 

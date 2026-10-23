@@ -4,79 +4,84 @@
   //
   // This is the group project template teams create from in Week 4 (M0).
   // Creating from it and opening a Codespace gives every student R, Quarto, Python, and the right
-  // VS Code extensions automatically -- nothing to install by hand. It mirrors
-  // the environment used by the HDSx course book so renders behave the same way.
+  // VS Code extensions automatically -- nothing to install by hand. It starts
+  // from the HDSx course book's setup, with every version pinned for the term.
   // (The HDSx book is a separate, read-only repository; students work HERE.)
+  // 🤖 AI edit (Claude), 2026-10-22: every file in .devcontainer/ is copied
+  // from ehsanx/HDSx-workspace; only this header and "name" differ, so keep
+  // them in step with it. "README" in the comments means that repository's
+  // .devcontainer/README.md (how to change versions, what was tested and why):
+  // https://github.com/ehsanx/HDSx-workspace/blob/main/.devcontainer/README.md
   // ---------------------------------------------------------------------------
   "name": "SPPH 381H group project (R + Quarto + Python)",
 
-  // rocker "tidyverse" ships R + the whole tidyverse + the system libraries
-  // students need, so renders work out of the box. Pin the major version.
-  "image": "ghcr.io/rocker-org/devcontainer/tidyverse:4",
-
-  "features": {
-    // Quarto CLI (bundles its own pandoc). HTML rendering works immediately.
-    // TinyTeX off on purpose: students render HTML, not PDF.
-    "ghcr.io/rocker-org/devcontainer-features/quarto-cli:1": {
-      "version": "release",
-      "installTinyTeX": "false"
-    },
-    // Python 3.11 for the Week 5 polyglot demo.
-    "ghcr.io/devcontainers/features/python:1": {
-      "version": "3.11"
-    }
-  },
+  // 🤖 AI edit (Claude), 2026-10-20: this "image" (was the rocker image plus
+  // the Quarto and Python features, built in every new Codespace). The course
+  // image has everything preinstalled; see .devcontainer/README.md.
+  "image": "ghcr.io/chendaniely/hdsx-workspace@sha256:5ef00ad78e12d8d58ad00c9a0b5545b436bfc2ac33db9c45d1df9ebb2d75373e",
 
   "customizations": {
     "vscode": {
+      // 🤖 AI edit (Claude), 2026-10-20: the six version pins below.
+      // An extension installed at a stated version does not auto-update, so
+      // the whole term runs on these releases (no pre-release builds). vscode-R
+      // must match the sess in the course image: bump both together, then
+      // rebuild the image. r-syntax is a dependency vscode-R 3.x pulls in.
+      // Python, Jupyter and Copilot stay unpinned (README: Extensions).
       "extensions": [
-        "quarto.quarto",
-        "REditorSupport.r",
+        "quarto.quarto@1.138.0",
+        "REditorSupport.r@3.2.0",
+        "REditorSupport.r-syntax@0.1.4",
         "ms-python.python",
         "ms-toolsai.jupyter",
         "GitHub.copilot",
         "GitHub.copilot-chat",
-        "mechatroner.rainbow-csv"
+        "mechatroner.rainbow-csv@3.24.1",
+        // 🤖 AI edit (Claude), 2026-10-20: the two viewers below. Clicking a
+        // rendered .html or .pdf opens it in a tab (README: HTML viewers, PDF
+        // viewers).
+        "analytic-signal.preview-html@1.0.0",
+        "mathematic.vscode-pdf@0.2.6",
+        // 🤖 AI edit (Claude), 2026-10-20: leave out R Debugger, which the
+        // rocker image adds (README: Extensions).
+        "-RDebugger.r-debugger"
       ],
       "settings": {
         "r.rterm.linux": "/usr/local/bin/R",
         "r.bracketedPaste": true,
-        // 🤖 AI edit (Claude), 2026-10-06: the two settings below, ported from
-        // the HDSx-workspace fix of 2026-09-29.
+        // 🤖 AI edit (Claude), 2026-09-29: the two settings below.
         // Plots from Run Cell appear as images in a VS Code tab. The image's
         // default (httpgd) embeds a forwarded port, which the Codespaces
         // browser client shows as a blank pane.
         "r.plot.backend": "standard",
         // Preview still renders on save but opens nothing: its side pane comes
         // up blank for the same reason, and its browser tab lands on "Not
-        // Found". Rendered files are viewed through port 8000 instead (below).
+        // Found". 🤖 AI edit (Claude), 2026-10-20: rendered files open in a
+        // tab instead (viewers above; README: Quarto's own preview).
         "quarto.render.previewType": "none",
+        // 🤖 AI edit (Claude), 2026-10-20: the setting below.
+        // Run Cell goes straight to a plain R terminal. Otherwise vscode-R 3.2
+        // first asks where to run, defaulting to its experimental "R
+        // Interactive" window, which needs the arf console (not installed).
+        "r.interactive.executionTarget": "terminal",
         "editor.formatOnSave": false
       }
     }
   },
 
-  // Runs once after the container is built. Installs the few extra packages and
-  // self-tests the toolchain. The leading sed strips stray carriage returns so
-  // the script runs even if the file was copied without git's eol=lf handling.
-  "postCreateCommand": "sed -i 's/\\r$//' .devcontainer/setup.sh && bash .devcontainer/setup.sh",
+  // Runs once after the container is built. Checks the course packages (the
+  // image already has them) and self-tests the toolchain. The leading sed strips
+  // stray carriage returns so the scripts run even if a file was copied without
+  // git's eol=lf handling.
+  "postCreateCommand": "sed -i 's/\\r$//' .devcontainer/setup.sh .devcontainer/install-packages.sh && bash .devcontainer/setup.sh",
+  // 🤖 AI edit (Claude), 2026-10-20: this setting. The editor opens only once
+  // setup.sh is done, so no one starts R before its packages and sess are in.
+  "waitFor": "postCreateCommand",
 
-  // 🤖 AI edit (Claude), 2026-10-06: this block, ported from the HDSx-workspace
-  // fix of 2026-09-29.
-  // Serves the repository so rendered HTML (and PDF) opens in a browser tab:
-  // Ports tab -> "Rendered reports" -> globe icon -> click the file. The front
-  // page is a file list, because Codespaces always opens a port's front page.
-  // Runs each time VS Code connects, as a foreground server like typing it in a
-  // terminal. (A detached postStartCommand server did not survive startup.)
-  // Bound to 127.0.0.1 so only Codespaces' own forwarding can reach it. It
-  // serves the whole repository, .git included, so keep the port private.
-  "forwardPorts": [8000],
-  "portsAttributes": {
-    "8000": { "label": "Rendered reports", "onAutoForward": "silent" }
-  },
-  "postAttachCommand": {
-    "reports": "python3 -m http.server 8000 --bind 127.0.0.1"
-  },
+  // 🤖 AI edit (Claude), 2026-10-20: this setting, and the removal of the
+  // port-8000 server. No port is forwarded: each one popped up "Open in
+  // Browser" and "Make Public" and led nowhere useful (README: Ports).
+  "otherPortsAttributes": { "onAutoForward": "ignore" },
 
   "hostRequirements": {
     "cpus": 2,

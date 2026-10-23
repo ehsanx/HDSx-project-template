@@ -2,37 +2,45 @@
 # -----------------------------------------------------------------------------
 # SPPH 381H student-workspace Codespace post-create setup.
 #
-# Installs the few packages NOT already in the rocker tidyverse image, then
-# runs a self-test so you can see at a glance what works. We deliberately do
-# NOT use `set -e`: if one optional package fails, the rest of setup should
-# still finish and the self-test should still print, so the failure is visible
-# instead of silently aborting the whole container build.
+# Checks the course packages via install-packages.sh (the course image already
+# has them, so this takes seconds), then runs a self-test so you can see at a
+# glance what works. We deliberately do NOT use `set -e`: if one optional
+# package fails, the rest of setup should still finish and the self-test should
+# still print, so the failure is visible instead of silently cutting setup
+# short.
 # -----------------------------------------------------------------------------
 set -uo pipefail
 
-echo "==> Installing extra R packages (Table 1, dashboards, optional demos)..."
-Rscript -e '
-  pkgs <- c("gt", "gtsummary", "DT", "janitor", "scales", "plotly", "shiny", "reticulate")
-  need <- setdiff(pkgs, rownames(installed.packages()))
-  if (length(need)) install.packages(need, repos = "https://cloud.r-project.org")
-  have <- intersect(pkgs, rownames(installed.packages()))
-  cat("R extras present:", paste(have, collapse = ", "), "\n")
-'
+# 🤖 AI edit (Claude), 2026-10-20: this block and the SETUP COMPLETE lines.
+# "waitFor" in devcontainer.json keeps the editor closed until this script
+# ends, and the script always reaches its end (no `set -e`), so the marker file
+# only survives a setup that was killed part way. ~/.Rprofile then warns in
+# every interactive R, so that incomplete Codespace does not fail silently.
+SETUP_MARKER="$HOME/.codespace-setup-running"
+touch "$SETUP_MARKER"
+if ! grep -q 'codespace-setup-running' "$HOME/.Rprofile" 2>/dev/null; then
+  cat >> "$HOME/.Rprofile" <<'EOF'
+# Added by .devcontainer/setup.sh: warn if the Codespace setup did not finish.
+if (interactive() && file.exists("~/.codespace-setup-running")) {
+  message("\n⚠️  This Codespace's setup did not finish, so some packages may be missing.\n",
+          "   Rebuild it (Command Palette > Codespaces: Rebuild Container), or ask\n",
+          "   the instructor for help.\n")
+}
+EOF
+fi
+echo "=========================================================="
+echo "⏳ SETUP IN PROGRESS: checking the course packages (seconds)."
+echo "=========================================================="
 
-# 🤖 AI edit (Claude), 2026-10-06: this block and the sess self-test line, ported
-# from the HDSx-workspace fix of 2026-09-29.
-# sess connects R terminals to the VS Code R extension (v3+), which is how plots
-# and View() reach the editor. Without it, plots silently go to Rplots.pdf. It is
-# not on CRAN yet, and pre-installing it saves students an install prompt.
-echo "==> Installing sess (sends plots from R to VS Code)..."
-Rscript -e '
-  if (!requireNamespace("sess", quietly = TRUE))
-    install.packages("sess", repos = c("https://reditorsupport.r-universe.dev", "https://cloud.r-project.org"))
-'
+# 🤖 AI edit (Claude), 2026-10-20: the installs moved to install-packages.sh,
+# which the image build also runs; here it finds them done in seconds.
+bash .devcontainer/install-packages.sh
 
-echo "==> Installing Python packages (Week 5 polyglot / reticulate demo)..."
-python3 -m pip install --upgrade pip >/dev/null
-python3 -m pip install -r .devcontainer/requirements.txt
+# 🤖 AI edit (Claude), 2026-10-20: keep .r-plots/ (see install-packages.sh) out
+# of commits without touching the student's .gitignore.
+if [ -d .git ] && ! grep -qx '/.r-plots/' .git/info/exclude 2>/dev/null; then
+  echo '/.r-plots/' >> .git/info/exclude
+fi
 
 echo ""
 echo "=================== TOOLCHAIN SELF-TEST ==================="
@@ -40,11 +48,13 @@ echo "-- R --";       R --version | head -n 1
 echo "-- Quarto --";  quarto --version
 echo "-- Python --";  python3 --version
 echo "-- pandas --";  python3 -c "import pandas as pd; print('pandas', pd.__version__)" || echo "pandas NOT available"
-echo "-- sess --";    Rscript -e 'cat("sess", format(packageVersion("sess")), "\n")' 2>/dev/null || echo "sess NOT available (plots will not show in VS Code)"
+echo "-- sess --";    Rscript -e 'cat("sess", format(packageVersion("sess")), packageDescription("sess", fields = "Config/vscode-R/source-revision"), "\n")' 2>/dev/null || echo "sess NOT available (plots will not show in VS Code)"
 echo ""
 echo "-- quarto check (verifies R + Python + Jupyter integration) --"
 quarto check || true
 echo "=========================================================="
-echo "If every section above printed a version with no error, the"
-echo "environment is ready. If something failed, copy this whole log"
-echo "and send it to the instructor so it can be fixed."
+rm -f "$SETUP_MARKER"
+echo "✅ SETUP COMPLETE. If every section above printed a version with"
+echo "no error, the environment is ready. If something failed, copy this"
+echo "whole log (Codespaces: View Creation Log) and send it to the"
+echo "instructor so it can be fixed."
